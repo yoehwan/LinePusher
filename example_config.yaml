@@ -1,0 +1,8 @@
+authorization: "Your Access Token"
+user_id: "UserID to Receive Message"
+messages: [
+  {
+    "type": "text",
+    "text": "Hello, world"
+  }
+]

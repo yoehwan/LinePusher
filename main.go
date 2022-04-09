@@ -1,7 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+	"fmt"
+)
 
 func main() {
-	fmt.Println("hello")
+	configPath := flag.String("config", "", "Config file path")
+	auth := flag.String("auth", "", "Channel Access Token")
+
+	flag.Parse()
+
+	fmt.Println(auth)
+
+	fmt.Println(configPath)
+
 }

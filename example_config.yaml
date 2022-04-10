@@ -1,5 +1,10 @@
 authorization: "Your Access Token"
 user_id: "UserID to Receive Message"
+sender:
+  name: "Sender Name"
+  icon_url: "Sender ThumbNail"
+
+# https://developers.line.biz/en/reference/messaging-api/#message-objects
 messages: [
   {
     "type": "text",

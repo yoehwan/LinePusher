@@ -2,17 +2,39 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log"
+	"net/http"
 )
 
 func main() {
-	configPath := flag.String("config", "", "Config file path")
-	auth := flag.String("auth", "", "Channel Access Token")
+	var config *Config
+	//var auth *string
 
+	configPath := flag.String("config", "./config.yaml", "Config file path")
 	flag.Parse()
 
-	fmt.Println(auth)
+	if *configPath == "" {
+		//auth = flag.String("auth", "", "Channel Access Token")
 
-	fmt.Println(configPath)
+	} else {
+		var err error
+		config, err = LoadFromPath(*configPath)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+	pushMessage(config)
 
+}
+
+const api = "https://api.line.me/v2/bot/message/push"
+
+func pushMessage(c *Config) error {
+	res, err := http.PostForm(api, c.PostBody())
+	if err != nil {
+		return err
+	}
+	res.Header.Set("Content-Type", "application/json")
+	res.Header.Set("Authorization", "Bearer "+c.Authorization)
+	return nil
 }

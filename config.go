@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/spf13/viper"
 	"io/ioutil"
 )
@@ -22,19 +23,22 @@ type Message struct {
 	Data map[string]interface{}
 }
 
-func (c *Config) PostBody() map[string][]string {
-	return map[string][]string{
-		"to": {c.UserID},
-		"messages": {
-
-			`[{
-				"type": "Text",
-				"text": "Hello"
-			}]`,
+func (c *Config) PostBody() ([]byte, error) {
+	body := map[string]interface{}{
+		"to": c.UserID,
+		"messages": []map[string]interface{}{
+			{
+				"type": "text",
+				"text": "Hello",
+			},
 		},
 	}
+	res, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
-
 func LoadFromPath(path string) (*Config, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {

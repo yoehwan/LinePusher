@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -35,19 +36,25 @@ const api = "https://api.line.me/v2/bot/message/push"
 
 func pushMessage(c *Config) error {
 	client := http.Client{}
-	req, err := http.NewRequest("POST", api, nil)
+	body, err := c.PostBody()
+	if err != nil {
+		return err
+	}
+	log.Println(string(body))
+	req, err := http.NewRequest("POST", api, bytes.NewReader(body))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Authorization", "Bearer "+c.Authorization)
-	/// add body
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	bytes, err := ioutil.ReadAll(resp.Body)
+	res, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err)
+
+		return err
 	}
-	log.Println(string(bytes))
+	log.Println(string(res))
 	return nil
 }

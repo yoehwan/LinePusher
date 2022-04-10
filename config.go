@@ -26,10 +26,11 @@ func (c *Config) PostBody() map[string][]string {
 	return map[string][]string{
 		"to": {c.UserID},
 		"messages": {
-			`{
+
+			`[{
 				"type": "Text",
 				"text": "Hello"
-			}`,
+			}]`,
 		},
 	}
 }

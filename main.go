@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -23,18 +24,30 @@ func main() {
 			log.Println(err)
 		}
 	}
-	pushMessage(config)
+	err := pushMessage(config)
+	if err != nil {
+		log.Println(err)
+	}
 
 }
 
 const api = "https://api.line.me/v2/bot/message/push"
 
 func pushMessage(c *Config) error {
-	res, err := http.PostForm(api, c.PostBody())
+	client := http.Client{}
+	req, err := http.NewRequest("POST", api, nil)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Authorization", "Bearer "+c.Authorization)
+	/// add body
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
-	res.Header.Set("Content-Type", "application/json")
-	res.Header.Set("Authorization", "Bearer "+c.Authorization)
+	defer resp.Body.Close()
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(bytes))
 	return nil
 }

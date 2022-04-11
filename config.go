@@ -8,30 +8,27 @@ import (
 )
 
 type Config struct {
-	Authorization string
-	UserID        string
-	Sender        *Sender
-	Message       *Message
+	Authorization string                   `mapstructure:"authorization"`
+	Sender        *Sender                  `mapstructure:"sender"`
+	To            string                   `mapstructure:"to"`
+	Messages      []map[string]interface{} `mapstructure:"messages"`
 }
 
 type Sender struct {
-	Name    string
-	IconUrl string
-}
-
-type Message struct {
-	Data map[string]interface{}
+	Name    string `json:"name",mapstructure:"name"`
+	IconUrl string `json:"iconUrl",mapstructure:"iconUrl"`
 }
 
 func (c *Config) PostBody() ([]byte, error) {
+	var msg []map[string]interface{}
+	for _, item := range c.Messages {
+		item["sender"] = c.Sender
+		msg = append(msg, item)
+	}
+
 	body := map[string]interface{}{
-		"to": c.UserID,
-		"messages": []map[string]interface{}{
-			{
-				"type": "text",
-				"text": "Hello",
-			},
-		},
+		"to":       c.To,
+		"messages": msg,
 	}
 	res, err := json.Marshal(body)
 	if err != nil {
@@ -53,13 +50,10 @@ func readYaml(data *[]byte) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Config{
-		Authorization: viper.GetString("authorization"),
-		UserID:        viper.GetString("user_id"),
-		Sender: &Sender{
-			Name:    viper.GetString("sender.name"),
-			IconUrl: viper.GetString("sender.icon_url"),
-		},
-		Message: &Message{Data: viper.GetStringMap("message")},
-	}, nil
+	var c Config
+	err = viper.Unmarshal(&c)
+	if err != nil {
+		return nil, err
+	}
+	return &c, nil
 }
